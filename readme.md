@@ -55,6 +55,6 @@
 3、[悟空遥控](http://www.wukongtv.com/views/input.html "悟空遥控")  非常棒的一款遥控软件。  
 注：本软件远程控制端的遥控导航面板设计图和小部分CSS代码参考于它。
 
-4、[AFAP Player](https://github.com/AFAP/Player "ijkplayer") 用于实现视频播放
+4、[AFAP Player](https://github.com/AFAP/Player "AFAP Player") 用于实现视频播放，采用[ijkplayer](https://github.com/Bilibili/ijkplayer "ijkplayer")播放器核心
 
 5、[MiniThunder](https://github.com/oceanzhang01/MiniThunder "MiniThunder") 用于实现视频文件下载功能
