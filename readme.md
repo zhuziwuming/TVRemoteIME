@@ -8,6 +8,8 @@
 它能帮助盒子实现跨屏输入，以后在盒子里聊天打字要多快就有多快；它能代替盒子遥控器，用手机，电脑，IPAD摇控盒子都不是问题；它能管理盒子的应用，一键快速启动/卸载应用；它能跨屏安装应用与传送文件到盒子；还能实现HTTP/RTMP/MMS网络视频直播、ED2K/种子文件的视频文件边下边播。
 
 # 安装方法
+下载最新版本的APK包：https://github.com/kingthy/TVRemoteIME/raw/master/released/IMEService-release.apk  
+
 ## 一、通过adb命令安装应用  
 1、电视盒子开启adb调试 
 
