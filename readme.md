@@ -47,16 +47,19 @@
 ## 控制界面示例截图  
 注： 输入控制端不需要安装任何APK应用，直接浏览器操作  
 
-![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot.jpg "控制界面示例截图")  
+![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot.png "控制界面示例截图")  
+![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot_2.png "控制界面示例截图")  
+![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot_3.png "控制界面示例截图")  
+![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot_4.png "控制界面示例截图")  
 
 # 版本历史 
-## V1.0.0版本
+1、 V1.0.0版本  
 于2018-1-11发布，本应用的第一个版本，实现盒子跨屏输入、远程遥控、APP包管理、文件传送等功能  
 
-## V1.1.0版本  
+2、 V1.1.0版本  
 于2018-2-4发布，增加视频的播放功能，支持播放多种不同网络协议的网络视频及网络直播源，采用边下载边播方式实现，  
 
-## V1.2.0版本  
+3、 V1.2.0版本  
 于2018-3-3发布，增加盒子的文件管理功能、优化了控制端的UI设计、优化了播放器的功能、增加电视频道数据，  
 
 # 引用第三方包/资源说明
