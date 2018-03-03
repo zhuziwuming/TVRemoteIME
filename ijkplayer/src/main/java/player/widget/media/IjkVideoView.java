@@ -215,6 +215,12 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         mRenderView.setVideoRotation(mVideoRotationDegree);
     }
 
+    public long getTcpSpeed(){
+        if(mMediaPlayer == null) return 0;
+        IjkMediaPlayer player = MediaPlayerCompat.getIjkMediaPlayer(mMediaPlayer);
+        return  player != null ? player.getTcpSpeed() : 0;
+    }
+
     public void setRender(int render) {
         switch (render) {
             case RENDER_NONE:

@@ -63,10 +63,10 @@ public class DownloadTask {
     }
 
     public void setUrl(String url) {
-        this.url = url;
-
         //删除旧任务及文件
         this.stopTask();
+
+        this.url = url;
         this.playList.clear();
         this.mIsLiveMedia = FileUtils.isLiveMedia(this.url);
         this.isNetworkDownloadTask = !this.mIsLiveMedia && FileUtils.isNetworkDownloadTask(this.url);

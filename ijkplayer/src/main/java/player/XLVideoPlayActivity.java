@@ -60,6 +60,10 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
     private static final int MESSAGE_SEEK_NEW_POSITION = 3;
     private static final int MESSAGE_HIDE_CENTER_BOX = 4;
     private static final int MESSAGE_RESTART_PLAY = 5;
+    private static final int MESSAGE_LIVE_RESTART = 6;
+
+    private static boolean isRunning = false;
+    private static XLVideoPlayActivity runningInstance = null;
 
     private String mVideoPath;
     private String mVideoTitle;
@@ -75,6 +79,7 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
     private int volume = -1;
     private int newPosition = -1;
     private boolean isLive = false;//是否为直播
+    private boolean isLiveRestarted = false;
     private int screenWidthPixels;
     private AudioManager audioManager;
     private int mMaxVolume;
@@ -179,7 +184,40 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
         intentTo(context, videoPath, videoTitle, 0);
     }
     public static void intentTo(Context context, String videoPath, String videoTitle, int videoIndex) {
-        context.startActivity(newIntent(context, videoPath, videoTitle, videoIndex));
+        if(XLVideoPlayActivity.isRunning &&
+                XLVideoPlayActivity.runningInstance != null){
+            XLVideoPlayActivity.runningInstance.resetVideoPath(videoPath, videoIndex);
+        }
+        else {
+            context.startActivity(newIntent(context, videoPath, videoTitle, videoIndex));
+        }
+    }
+
+    private void resetVideoPath(final String videoPath, final int videoIndex){
+        if(!TextUtils.isEmpty(videoPath)) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mVideoView.stopPlayback();
+                    $.id(R.id.app_video_loading).visible();
+                    startDownloadTask(videoPath, videoIndex);
+                    playListItemAdapter.notifyDataSetChanged();
+                    handler.sendEmptyMessageDelayed(XLVideoPlayActivity.MESSAGE_RESTART_PLAY, 2000);
+                }
+            });
+        }
+    }
+
+    private void startDownloadTask(String videoPath,  int videoIndex){
+        xlDownloadManager.taskInstance().setUrl(videoPath);
+        if(videoIndex > 0)xlDownloadManager.taskInstance().changePlayItem(videoIndex);
+        if(!xlDownloadManager.taskInstance().startTask()){
+            Toast.makeText(this, "无法运行资源下载任务，退出播放任务.", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "无法运行资源下载任务，退出播放任务.");
+            finish();
+            return;
+        }
+        isLive = xlDownloadManager.taskInstance().isLiveMedia();
     }
 
     @Override
@@ -227,19 +265,10 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
                 }
             }
         }
-        if(mVideoPath != null){
-            xlDownloadManager.taskInstance().setUrl(mVideoPath);
-        }else if(mVideoUri != null){
-            xlDownloadManager.taskInstance().setUrl(mVideoUri.toString());
+        if(mVideoPath == null && mVideoUri != null){
+            mVideoPath = mVideoUri.toString();
         }
-        if(mVideoIndex > 0)xlDownloadManager.taskInstance().changePlayItem(mVideoIndex);
-        if(!xlDownloadManager.taskInstance().startTask()){
-            Toast.makeText(this, "无法运行资源下载任务，退出播放任务.", Toast.LENGTH_LONG).show();
-            Log.e(TAG, "无法运行资源下载任务，退出播放任务.");
-            finish();
-            return;
-        }
-        isLive = xlDownloadManager.taskInstance().isLiveMedia();
+        startDownloadTask(mVideoPath, mVideoIndex);
 
         playListView = (RecyclerView)findViewById(R.id.play_list_view);
         playListView.setLayoutManager(new FocusFixedLinearLayoutManager(this));
@@ -293,6 +322,9 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
         screenWidthPixels = getResources().getDisplayMetrics().widthPixels;
 
         handler.sendEmptyMessageDelayed(XLVideoPlayActivity.MESSAGE_RESTART_PLAY, 2000);
+
+        isRunning = true;
+        runningInstance = this;
     }
 
     @Override
@@ -307,16 +339,25 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
 
     @Override
     public boolean onInfo(IMediaPlayer iMediaPlayer, int i, int i1) {
-        //Log.i(TAG,"onInfo : i=" + i + ",i1=" + i1);
         switch (i) {
             case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
+                if(isLive){
+                    isLiveRestarted = false;
+                    Log.d(TAG, "MSG:MESSAGE_LIVE_RESTART -> begin");
+                    handler.sendEmptyMessageDelayed(MESSAGE_LIVE_RESTART, 3000);
+                }
                 statusChange(STATUS_LOADING);
                 break;
             case IMediaPlayer.MEDIA_INFO_BUFFERING_END:
+                if(isLive && !isLiveRestarted) {
+                    Log.d(TAG, "MSG:MESSAGE_LIVE_RESTART -> remove");
+                    handler.removeMessages(MESSAGE_LIVE_RESTART);
+                }
                 statusChange(STATUS_PLAYING);
                 break;
             case IMediaPlayer.MEDIA_INFO_NETWORK_BANDWIDTH:
                 //显示下载速度
+                Log.i(TAG,"onInfo : i=" + i + ",i1=" + i1);
                 break;
             case IMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
                 statusChange(STATUS_PLAYING);
@@ -380,10 +421,11 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
             statusChange(STATUS_PAUSE);
             mVideoView.pause();
         } else {
-            mVideoView.start();
             if (isLive) {
+                mVideoView.resume();
                 //mVideoView.seekTo(0);
             } else {
+                mVideoView.start();
                 //mVideoView.seekTo(currentPosition);
             }
         }
@@ -434,6 +476,7 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
     private boolean changeProgressByKey = false;
     private int oldProgressValue = -1;
     private int newProgressValue = -1;
+    private int keyDownComboCount = 0;
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -444,6 +487,12 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
                     oldProgressValue = -1;
                     endGesture();
                 }
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                if(keyDownComboCount > 20){
+                    mVideoView.resume();
+                }
+                keyDownComboCount = 0;
                 break;
         }
         return super.onKeyUp(keyCode, event);
@@ -466,12 +515,13 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
                     oldProgressValue = 0;
                     newProgressValue = oldProgressValue;
                 }
-                newProgressValue += keyCode == KeyEvent.KEYCODE_DPAD_LEFT ? -1 : 1;
-                Log.d(TAG, "newProgressValue = " + newProgressValue);
-                if(newProgressValue < (0 - seekBar.getMax()))newProgressValue = (0 - seekBar.getMax());
-                if(newProgressValue > seekBar.getMax())newProgressValue = seekBar.getMax();
+                newProgressValue += keyCode == KeyEvent.KEYCODE_DPAD_LEFT ? -2000 : 2000;
+                int max = mVideoView.getDuration();
+                //Log.d(TAG, "newProgressValue = " + newProgressValue);
+                if(newProgressValue < (0 - max))newProgressValue = (0 - max);
+                if(newProgressValue > max)newProgressValue = max;
                 float deltaP = oldProgressValue - newProgressValue;
-                onProgressSlide(-deltaP / seekBar.getMax());
+                onProgressSlide(-deltaP / max);
                 return true;
             case KeyEvent.KEYCODE_DPAD_DOWN:
             case KeyEvent.KEYCODE_DPAD_UP:
@@ -487,6 +537,9 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
                 }else if(xlDownloadManager.taskInstance().getPlayList().size() > 1){
                     playListView.setVisibility(View.VISIBLE);
                     return true;
+                }else if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+                    keyDownComboCount ++;
+                    //Log.d(TAG, "keyDownComboCount = " + keyDownComboCount);
                 }
                 break;
             case KeyEvent.KEYCODE_ENTER:
@@ -503,9 +556,7 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
      */
     public void show(int timeout) {
         if (!isShowing) {
-            if (!isLive) {
-                showBottomControl(true);
-            }
+            showBottomControl(true);
             if (!fullScreenOnly) {
                 //$.id(R.id.app_video_fullscreen).visible();
             }
@@ -522,7 +573,7 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
     private void showBottomControl(boolean show) {
         $.id(R.id.app_play_btn_play_list).visibility(show && xlDownloadManager.taskInstance().getPlayList().size() > 1 ? View.VISIBLE : View.GONE);
         $.id(R.id.app_video_play).visibility(show ? View.VISIBLE : View.GONE);
-        $.id(R.id.app_video_speed).visibility(show && xlDownloadManager.taskInstance().getTaskInfo() != null ? View.VISIBLE : View.GONE);
+        $.id(R.id.app_video_speed).visibility(show ? View.VISIBLE : View.GONE);
         $.id(R.id.app_video_currentTime).visibility(show ? View.VISIBLE : View.GONE);
         $.id(R.id.app_video_endTime).visibility(show ? View.VISIBLE : View.GONE);
         $.id(R.id.app_video_seekBar).visibility(show ? View.VISIBLE : View.GONE);
@@ -613,10 +664,7 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
 
         $.id(R.id.app_video_currentTime).text(generateTime(position));
         $.id(R.id.app_video_endTime).text(generateTime(this.duration));
-
-        if(xlTaskInfo != null){
-            $.id(R.id.app_video_speed).text(FileUtils.convertFileSize(xlTaskInfo.mDownloadSpeed) + "/s");
-        }
+        $.id(R.id.app_video_speed).text(FileUtils.convertFileSize(mVideoView.getTcpSpeed()) + "/s");
         return position;
     }
 
@@ -632,7 +680,7 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
     private void onProgressSlide(float percent) {
         int position = mVideoView.getCurrentPosition();
         int duration = mVideoView.getDuration();
-        int deltaMax = Math.min(300000, duration - position);
+        int deltaMax = duration - position; //Math.min(300000, duration - position);
         int delta = (int) (deltaMax * percent);
 
         newPosition = delta + position;
@@ -772,6 +820,13 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
                     mVideoView.seekTo(0);
                     Log.d(TAG, "playing url = " + xlDownloadManager.taskInstance().getPlayUrl());
                     break;
+                case MESSAGE_LIVE_RESTART:
+                    Log.d(TAG, "MSG:MESSAGE_LIVE_RESTART -> handle:" + status);
+                    if(status == STATUS_LOADING){
+                        mVideoView.resume();
+                    }
+                    isLiveRestarted = true;
+                    break;
             }
         }
     };
@@ -813,10 +868,25 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        runningInstance = null;
+        isRunning = false;
+
         if(mVideoView != null) mVideoView.stopPlayback();
         xlDownloadManager.taskInstance().stopTask();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG, "onStart");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.i(TAG, "onRestart");
+    }
 
     class Query {
         private final Activity activity;
