@@ -1,0 +1,30 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
+
+    defaultConfig {
+        applicationId 'com.android.tvremoteime'
+        minSdkVersion 12
+        targetSdkVersion 15
+        versionCode 5
+        versionName "1.2.0"
+    }
+
+    buildTypes {
+        debug{
+            minifyEnabled false
+        }
+        release{
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../proguard-project.txt'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(path: ':ijkplayer')
+}
