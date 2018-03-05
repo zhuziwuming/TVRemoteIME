@@ -21,7 +21,9 @@
 `adb install IMEService-release.apk`  
 
 4、设置为系统默认输入法  
-`adb shell ime set com.android.tvremoteime/.IMEService`  
+`adb shell ime set com.android.tvremoteime/.IMEService`    
+
+注：如果无法设置为系统的默认输入法，则先启动TVRemoteIME应用后再手动启动服务。  
 
 5、电脑或者手机访问远程输入法的控制页面
 `http://192.168.1.100:9978/`  
