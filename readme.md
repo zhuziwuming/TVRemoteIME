@@ -90,5 +90,10 @@
 
 5、[MiniThunder](https://github.com/oceanzhang01/MiniThunder "MiniThunder") 用于实现视频文件下载功能
 
-# 交流QQ群
-QQ群号：7149348
+# 交流QQ群  
+QQ群号：7149348， 加入QQ群可以分享直播源、反馈问题及建议。  
+
+# 赞赏一下  
+如果您觉得本应用项目对你有帮助，可以赞赏一下作者：）。万水千山总是情，一块两块都可行！  
+
+![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/reward.png "控制界面示例截图")    
