@@ -45,6 +45,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
+            android:layout_marginLeft="10dp"
+            android:text="如无法设置为系统默认输入法请手动点击下面按钮启动服务\n注意：手动启动服务无法使用远程输入及遥控功能，且每次盒子重启也需要重新启动服务"/>
+        <Button
+            android:id="@+id/btnStartService"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="手动启动服务"
+            android:onClick="onClick"/>
+        <TextView
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:layout_marginLeft="10dp"
+            android:text="注意：手动启动服务无法使用远程输入及遥控功能"/>
+        <TextView
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
             android:text="第三步：手机/电脑扫描或者直接访问以下地址"/>
         <TextView
             android:id="@+id/tvAddress"

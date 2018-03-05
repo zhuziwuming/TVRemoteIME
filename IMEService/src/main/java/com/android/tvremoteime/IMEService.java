@@ -26,6 +26,7 @@ import java.io.IOException;
 
 public class IMEService extends InputMethodService implements View.OnClickListener{
 	public static String TAG = "TVRemoteIME";
+	public static String ACTION = "com.android.tvremoteime";
 
 	private boolean capsOn = false;
 	private ImageButton btnCaps = null;
