@@ -1,11 +1,11 @@
 # TVRemoteIME 
-电视盒子的远程输入法应用，可跨屏远程输入、跨屏远程控制盒子、HTTP/RTMP/MMS网络视频直播、ED2K/种子文件的视频文件边下边播
+电视盒子的远程输入法应用，可跨屏远程输入、跨屏远程控制盒子、远程文件管理、HTTP/RTMP/MMS网络视频直播、ED2K/种子文件的视频文件边下边播
 
 # 应用的诞生
 自从家里有电视盒子以来，电视收看、电影播放、娱乐小游戏什么的都是直接在盒子里运行，因为电视屏幕比起手机屏幕大，玩起来那效果是手机没法比的，但是在娱乐的过程中也总是有一些不便，比如玩游戏过程中想聊天什么的，在电视盒子里输入文字用遥控器按？只有用过才知道痛苦！外挂物理键盘，可惜很多输入法都不支持物理键盘的同时输入，远远达不到电脑的效果！于是找了很多遥控与跨屏输入的软件，但可惜没有一款是比较理想的，特别家里的一个创维Q+二代盒子，只要一进游戏的聊天界面，不管外面设置了什么跨屏输入法，都会自动切换为厂家自带的百度输入法，非常的可恶！于是就有了自己做一款远程跨屏的输入法，于是这TVRemoteIME就这样诞生了…………  
 
 # 它能做什么  
-它能帮助盒子实现跨屏输入，以后在盒子里聊天打字要多快就有多快；它能代替盒子遥控器，用手机，电脑，IPAD摇控盒子都不是问题；它能管理盒子的应用，一键快速启动/卸载应用；它能跨屏安装应用与传送文件到盒子；还能实现HTTP/RTMP/MMS网络视频直播、ED2K/种子文件的视频文件边下边播。
+它能帮助盒子实现跨屏输入，以后在盒子里聊天打字要多快就有多快；它能代替盒子遥控器，用手机，电脑，IPAD摇控盒子都不是问题；它能管理盒子的应用与文件，一键快速启动/卸载应用；它能跨屏安装应用与传送文件到盒子；还能实现HTTP/RTMP/MMS网络视频直播、ED2K/种子文件的视频文件边下边播。
 
 # 安装方法
 下载最新版本的APK包：https://github.com/kingthy/TVRemoteIME/raw/master/released/IMEService-release.apk  
@@ -42,15 +42,31 @@
 
 ## 视频播放控制说明  
 
-在视频播放时，点击控制器进行控制，左右键用于控制快进或者快退（非直播情况下可用）、上下键用于选择需要播放的视频文件（播放种子文件且里面包含多个视频时可用）、确定键用于暂停或者恢复播放功能。
+在视频播放时，点击控制器进行控制，左右键用于控制快进或者快退（非直播情况下可用）、上下键用于选择需要播放的视频文件（播放种子文件且里面包含多个视频时可用），在播放单视频（非种子视频）时长按下键1秒左右会重头开始播放视频、确定键用于暂停或者恢复播放功能。
+
+## 电视直播源列表  
+需要更改直接源列表有两种方式：  
+1、直接在控制端界面修改  
+2、通过文件管理界面进入“/Android/data/com.android.tvremoteime/files/” 目录，对里面的tv.txt文件进行修改（通过下载与上传）即可。如tv.txt文件不存在，新建即可覆盖默认的直播源，此文件格式为ini文件格式，格式如下：  
+<pre><code>[电视台名称]  
+源名称1 = 源地址  
+源名称2 = 源地址 
+
+[电视台名称]  
+源名称 = 源地址  
+</pre></code>
 
 ## 控制界面示例截图  
 注： 输入控制端不需要安装任何APK应用，直接浏览器操作  
 
-![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot.png "控制界面示例截图")  
-![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot_2.png "控制界面示例截图")  
-![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot_3.png "控制界面示例截图")  
-![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot_4.png "控制界面示例截图")  
+![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot.png "控制界面示例截图")    
+
+![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot_2.png "控制界面示例截图")    
+
+![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot_3.png "控制界面示例截图")    
+
+![示例截图](https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/screenshot_4.png "控制界面示例截图")    
+
 
 # 版本历史 
 1、 V1.0.0版本  
