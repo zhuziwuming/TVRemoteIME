@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:layout_marginLeft="10dp"
-            android:text="如无法设置为系统默认输入法请手动点击下面按钮启动服务\n注意：手动启动服务无法使用远程输入及遥控功能，且每次盒子重启也需要重新启动服务"/>
+            android:text="如无法设置为系统默认输入法请手动点击下面按钮启动服务\n注意：手动启动服务无法使用远程输入及遥控功能"/>
         <Button
             android:id="@+id/btnStartService"
             android:layout_marginTop="5dp"
