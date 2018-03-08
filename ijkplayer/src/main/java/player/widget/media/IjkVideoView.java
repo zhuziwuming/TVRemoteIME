@@ -38,6 +38,7 @@ import android.widget.FrameLayout;
 import android.widget.MediaController;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afap.ijkplayer.R;
 
@@ -600,21 +601,21 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                             messageId = R.string.VideoView_error_text_unknown;
                         }
 
+                        Toast.makeText(getContext(), getContext().getString(messageId) + ",err=" +framework_err, Toast.LENGTH_LONG).show();
+                        if (mOnCompletionListener != null) {
+                            mOnCompletionListener.onCompletion(mMediaPlayer);
+                        }
+                        /**
                         new AlertDialog.Builder(getContext())
                                 .setMessage(messageId)
                                 .setPositiveButton(R.string.VideoView_error_button,
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
-                                            /* If we get here, there is no onError listener, so
-                                             * at least inform them that the video is over.
-                                             */
-                                                if (mOnCompletionListener != null) {
-                                                    mOnCompletionListener.onCompletion(mMediaPlayer);
-                                                }
                                             }
                                         })
                                 .setCancelable(false)
                                 .show();
+**/
                     }
                     return true;
                 }

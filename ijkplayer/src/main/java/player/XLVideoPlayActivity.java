@@ -11,6 +11,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -30,6 +31,7 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TableLayout;
@@ -198,20 +200,43 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    mVideoView.stopPlayback();
-                    $.id(R.id.app_video_loading).visible();
-                    startDownloadTask(videoPath, videoIndex);
-                    playListItemAdapter.notifyDataSetChanged();
-                    handler.sendEmptyMessageDelayed(XLVideoPlayActivity.MESSAGE_RESTART_PLAY, 2000);
+                    if(videoPath.equalsIgnoreCase(mVideoPath)){
+                        if(videoIndex != mVideoIndex){
+                            resetVideoIndex(videoIndex);
+                        }
+                    }else {
+                        mVideoView.stopPlayback();
+                        $.id(R.id.app_video_loading).visible();
+                        startDownloadTask(videoPath, videoIndex);
+                        playListItemAdapter.notifyDataSetChanged();
+                        handler.sendEmptyMessageDelayed(XLVideoPlayActivity.MESSAGE_RESTART_PLAY, 3000);
+                    }
                 }
             });
         }
     }
 
+    private void resetVideoIndex(int videoIndex){
+        if(videoIndex != -1 && xlDownloadManager.taskInstance().getPlayList().size() > 1) {
+            mVideoView.stopPlayback();
+            $.id(R.id.app_video_loading).visible();
+            if(xlDownloadManager.taskInstance().changePlayItem(videoIndex)) {
+                playListItemAdapter.notifyDataSetChanged();
+                handler.sendEmptyMessageDelayed(XLVideoPlayActivity.MESSAGE_RESTART_PLAY, 6000);
+            }
+        }
+    }
+
     private void startDownloadTask(String videoPath,  int videoIndex){
+        if(TextUtils.isEmpty(videoPath)) {
+            Toast.makeText(this, "没有视频播放资源，退出播放任务.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
         xlDownloadManager.taskInstance().setUrl(videoPath);
         if(videoIndex > 0)xlDownloadManager.taskInstance().changePlayItem(videoIndex);
-        if(!xlDownloadManager.taskInstance().startTask()){
+        if(!xlDownloadManager.taskInstance().startTask() ||
+                TextUtils.isEmpty(xlDownloadManager.taskInstance().getPlayUrl())){
             Toast.makeText(this, "无法运行资源下载任务，退出播放任务.", Toast.LENGTH_LONG).show();
             Log.e(TAG, "无法运行资源下载任务，退出播放任务.");
             finish();
@@ -268,6 +293,13 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
         if(mVideoPath == null && mVideoUri != null){
             mVideoPath = mVideoUri.toString();
         }
+
+        if(TextUtils.isEmpty(mVideoPath)){
+            Toast.makeText(this, "没有播放资源地址，退出播放任务。", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         startDownloadTask(mVideoPath, mVideoIndex);
 
         playListView = (RecyclerView)findViewById(R.id.play_list_view);
@@ -280,13 +312,7 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
             public void onClick(View view) {
                 playListView.setVisibility(View.GONE);
                 int index = ((PlayListItem)view.getTag()).getIndex();
-                if(index != 0 && xlDownloadManager.taskInstance().getPlayList().size() > 1) {
-                    mVideoView.stopPlayback();
-                    if(xlDownloadManager.taskInstance().changePlayItem(index)) {
-                        playListItemAdapter.notifyDataSetChanged();
-                        handler.sendEmptyMessageDelayed(XLVideoPlayActivity.MESSAGE_RESTART_PLAY, 2000);
-                    }
-                }
+                resetVideoIndex(index);
             }
         });
         playListView.setAdapter(playListItemAdapter);

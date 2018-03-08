@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import com.android.tvremoteime.server.RemoteServer;
 import com.android.tvremoteime.server.RemoteServerFileManager;
+import com.android.tvremoteime.adb.AdbHelper;
 
 import java.io.IOException;
 
@@ -50,26 +52,13 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 	public static final int KEY_ACTION_DOWN = 1;
 	public static final int KEY_ACTION_UP = 2;
 
-	final Handler handler = new Handler(){
-		@Override
-		public void handleMessage(Message msg) {
-			if(msg.what == SERVER_START_ERROR){
-				Exception ex = (Exception)msg.obj;
-				Toast.makeText(getApplicationContext(), "远程输入服务创建失败！错误信息：" + ex.getMessage(), Toast.LENGTH_LONG).show();
-			}else if(msg.what == ERROR){
-				Exception ex = (Exception)msg.obj;
-				Toast.makeText(getApplicationContext(), "程序发生错误，错误信息：" + ex.getMessage(), Toast.LENGTH_LONG).show();
-			}else if(msg.what == TOAST_MESSAGE){
-				String text = (String)msg.obj;
-				Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
-			}
-		}
-	};
-	final Handler focusedClickHandler = new Handler();
+	final Handler handler = new Handler();
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		Environment.initToastHandler();
 
 		RemoteServerFileManager.resetBaseDir(this);
 		startRemoteServer();
@@ -78,7 +67,10 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 	}
 
 	@Override
-    public View onCreateInputView() {
+    public View onCreateInputView()  {
+		if(Environment.needDebug){
+			Environment.debug(TAG, "onCreateInputView.");
+		}
     	mInputView = (RelativeLayout)getLayoutInflater().inflate(R.layout.keyboard, null);
 
 		capsOn = true;
@@ -96,35 +88,91 @@ public class IMEService extends InputMethodService implements View.OnClickListen
         return mInputView; 
     }
 
-    private void showToastMsg(int what, Exception e){
-		if(e == null){
-			handler.sendEmptyMessage(what);
-		}else{
-			Message msg = new Message();
-			msg.obj = e;
-			msg.what = what;
-			handler.sendMessage(msg);
+	@Override
+	public View onCreateCandidatesView() {
+		if(Environment.needDebug){
+			Environment.debug(TAG, "onCreateCandidatesView.");
 		}
-	}
-	private void showToastMsg(String mssage){
-		Message msg = new Message();
-		msg.obj = mssage;
-		msg.what = TOAST_MESSAGE;
-		handler.sendMessage(msg);
+		return null;
 	}
 
-    private void startRemoteServer(){
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		if(Environment.needDebug){
+			Environment.debug(TAG, "onStartCommand.");
+		}
+
+		onStart(intent, startId);
+		return START_STICKY;
+	}
+
+	@Override
+	public void onStartInput(EditorInfo attribute, boolean restarting) {
+		if(Environment.needDebug){
+			Environment.debug(TAG, "onStartInput " + " inputType: "
+					+ String.valueOf(attribute.inputType) + " Restarting:"
+					+ String.valueOf(restarting));
+		}
+		super.onStartInput(attribute, restarting);
+	}
+
+	@Override
+	public void onFinishInputView(boolean finishingInput) {
+		if (Environment.needDebug) {
+			Environment.debug(TAG, "onFinishInputView." + " finishingInput: "
+					+ String.valueOf(finishingInput));
+		}
+		super.onFinishInputView(finishingInput);
+	}
+
+	@Override
+	public void onFinishCandidatesView(boolean finishingInput) {
+		if (Environment.needDebug) {
+			Environment.debug(TAG, "onFinishCandidatesView." + " finishingInput: "
+					+ String.valueOf(finishingInput));
+		}
+		super.onFinishCandidatesView(finishingInput);
+	}
+
+	@Override
+	public boolean onEvaluateInputViewShown() {
+		if (Environment.needDebug) {
+			Environment.debug(TAG, "onEvaluateInputViewShown.");
+		}
+		super.onEvaluateInputViewShown();
+		EditorInfo editorInfo = getCurrentInputEditorInfo();
+		return !(editorInfo == null || editorInfo.inputType == EditorInfo.TYPE_NULL);
+	}
+
+	@Override
+	public boolean onEvaluateFullscreenMode() {
+		if (Environment.needDebug) {
+			Environment.debug(TAG, "onEvaluateFullscreenMode.");
+		}
+		return false;
+	}
+
+	private boolean isSendToAdbService(Object data){
+		if(AdbHelper.initService(getApplicationContext())){
+			AdbHelper.getInstance().sendData(data);
+			return true;
+		}
+		return false;
+	}
+
+	private void startRemoteServer(){
 		do {
 			mServer = new RemoteServer(RemoteServer.serverPort, this);
 			mServer.setDataReceiver(new RemoteServer.DataReceiver() {
 				@Override
-				public void onKeyEventReceived(String keyCode, int keyAction) {
+				public void onKeyEventReceived(String keyCode, final int keyAction) {
 					if(keyCode != null) {
 						if("cls".equalsIgnoreCase(keyCode)){
 							InputConnection ic = getCurrentInputConnection();
 							if(ic != null) {
-								ic.performContextMenuAction(android.R.id.selectAll);
-								ic.commitText("", 1);
+								ic.deleteSurroundingText(Integer.MAX_VALUE,Integer.MAX_VALUE);
+								//ic.performContextMenuAction(android.R.id.selectAll);
+								//ic.commitText("", 1);
 							}
 						}else {
 							final int kc = KeyEvent.keyCodeFromString(keyCode);
@@ -135,7 +183,7 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 											@Override
 											public void run() {
 												if (!handleKeyboardFocusEvent(kc)) {
-													sendKeyCode(kc);
+													if(!isSendToAdbService(kc)) sendKeyCode(kc);
 												}
 											}
 										});
@@ -146,10 +194,10 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 									InputConnection ic = getCurrentInputConnection();
 									switch (keyAction) {
 										case KEY_ACTION_PRESSED:
-											sendKeyCode(kc);
+											if(!isSendToAdbService(kc)) sendKeyCode(kc);
 											break;
 										case KEY_ACTION_DOWN:
-											if(ic != null) {
+											if(!isSendToAdbService(kc) && ic != null) {
 												ic.sendKeyEvent(new KeyEvent(eventTime, eventTime,
 														KeyEvent.ACTION_DOWN, kc, 0, 0, KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
 														KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE));
@@ -172,16 +220,17 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 				@Override
 				public void onTextReceived(String text) {
 					if (text != null) {
-						commitText(text);
+						if(!isSendToAdbService(text))commitText(text);
 					}
 				}
 			});
 			try {
 				mServer.start();
-				Log.i(TAG, "远程输入服务创建成功！port=" + RemoteServer.serverPort);
+				Environment.toastInHandler(this, TAG  + "远程服务已启动");
+				Log.i(TAG, "远程服务创建成功！port=" + RemoteServer.serverPort);
 				break;
 			}catch (IOException ex){
-				Log.e(TAG, "建立远程输入HTTP服务时出错", ex);
+				Log.e(TAG, "建立输入HTTP服务时出错", ex);
 				RemoteServer.serverPort ++;
 				mServer.stop();
 			}
@@ -192,7 +241,9 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 		InputConnection ic = getCurrentInputConnection();
 		boolean flag = false;
 		if (ic != null){
-			Log.d(TAG, "commitText:" + text);
+			if(Environment.needDebug) {
+				Environment.debug(TAG, "commitText:" + text);
+			}
 			if(text.length() > 1 && ic.beginBatchEdit()){
 				flag = ic.commitText(text, 1);
 				ic.endBatchEdit();
@@ -203,7 +254,9 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 		return flag;
 	}
 	private void sendKeyCode(int keyCode){
-		Log.d(TAG, "send-key-code:" + keyCode);
+		if(Environment.needDebug) {
+			Environment.debug(TAG, "send-key-code:" + keyCode);
+		}
 		if(keyCode == KeyEvent.KEYCODE_HOME){
 			//拦截HOME键
 			Intent i = new Intent(Intent.ACTION_MAIN);
@@ -220,14 +273,17 @@ public class IMEService extends InputMethodService implements View.OnClickListen
             Log.i(TAG, "远程输入服务已停止！");
 			mServer.stop();
 		}
+		AdbHelper.stopService();
+		Environment.toastInHandler(this, TAG  + "服务已停止");
     	super.onDestroy();    	
     }
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if(handleKeyboardFocusEvent(keyCode)) return true;
-		Log.d(TAG, "keydown-event:" + keyCode);
-
+		if (Environment.needDebug) {
+			Environment.debug(TAG, "keydown-event:" + keyCode);
+		}
 		//同步软键盘状态处理代码：不处理以下按键事件则有可能物理键盘字符输入与软键盘的大小写状态不同步
 		if(keyCode == KeyEvent.KEYCODE_CAPS_LOCK) capsOn = !capsOn;
 		if ((keyCode >= KeyEvent.KEYCODE_0 && keyCode <= KeyEvent.KEYCODE_9)) {
@@ -241,7 +297,9 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 
 	private boolean handleKeyboardFocusEvent(int keyCode){
 		if(mInputView != null) {
-			Log.d(TAG, "handleKeyboardFocusEvent:" + keyCode);
+			if (Environment.needDebug) {
+				Environment.debug(TAG, "handleKeyboardFocusEvent:" + keyCode);
+			}
 			switch (keyCode) {
 				case KeyEvent.KEYCODE_DPAD_UP:
 				case KeyEvent.KEYCODE_DPAD_DOWN:
@@ -269,6 +327,8 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 							helpDialog.setVisibility(View.GONE);
 						}else {
 							this.hideWindow();
+							this.onFinishInputView(true);
+							this.onFinishCandidatesView(true);
 						}
 						return true;
 					}
@@ -332,7 +392,7 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 			focusedView.setBackgroundResource(R.drawable.key_pressed);
 		}
 		clickButton(v, false);
-		focusedClickHandler.postDelayed(new Runnable() {
+		handler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
 				if(focusedView == btnCaps){

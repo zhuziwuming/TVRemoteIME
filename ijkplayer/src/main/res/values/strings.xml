@@ -51,7 +51,7 @@
     <string name="TrackType_unknown">Unknown</string>
 
     <string name="VideoView_error_text_invalid_progressive_playback">Invalid progressive playback</string>
-    <string name="VideoView_error_text_unknown">Unknown</string>
+    <string name="VideoView_error_text_unknown">出现未知错误，可尝试重新播放。</string>
     <string name="VideoView_error_button">OK</string>
 
     <string name="VideoView_ar_aspect_fit_parent">Aspect / Fit parent</string>

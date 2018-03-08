@@ -37,7 +37,7 @@ public class DownloadTask {
         }
     }
 
-    DownloadTask(){
+    public DownloadTask(){
 
     }
 
@@ -148,10 +148,13 @@ public class DownloadTask {
         return null;
     }
     public boolean changePlayItem(int index){
-        if(this.taskId != 0L && this.torrentInfo != null && index != this.currentPlayMediaIndex){
-            this.stopTask();
+        if(this.torrentInfo != null && index != this.currentPlayMediaIndex){
             this.currentPlayMediaIndex = index;
-            return this.startTask();
+            if(this.taskId != 0L){
+                this.stopTask();
+                return this.startTask();
+            }
+            return true;
         }
         return false;
     }
@@ -185,7 +188,7 @@ public class DownloadTask {
         }else {
             taskId = this.isLocalMedia || this.mIsLiveMedia ? -9999L : 0L;
         }
-        Log.d(TAG, "startTask(" + this.url + "), taskId = " + taskId);
+        Log.d(TAG, "startTask(" + this.url + "), taskId = " + taskId + ", index = " + currentPlayMediaIndex);
         return  taskId != 0L;
     }
 

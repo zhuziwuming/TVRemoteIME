@@ -116,7 +116,7 @@ public class AppPackagesHelper {
                 if(i1 == i2){
                     return o1.getLable().compareTo(o2.getLable());
                 }else{
-                    return Integer.compare(i1, i2);
+                    return (i1 < i2) ? -1 : 1;
                 }
             }
         });

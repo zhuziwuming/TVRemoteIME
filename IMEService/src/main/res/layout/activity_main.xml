@@ -8,11 +8,13 @@
     android:background="#444"
     android:padding="20dp"
     >
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingRight="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_alignParentLeft="true">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,7 +48,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:layout_marginLeft="10dp"
-            android:text="如无法设置为系统默认输入法请手动点击下面按钮启动服务\n注意：手动启动服务无法使用远程输入及遥控功能"/>
+            android:text="如无法设置为系统默认输入法请手动点击下面按钮启动服务"/>
         <Button
             android:id="@+id/btnStartService"
             android:layout_marginTop="5dp"
@@ -61,7 +63,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:layout_marginLeft="10dp"
-            android:text="注意：手动启动服务无法使用远程输入及遥控功能"/>
+            android:text="注意：手动启动服务后要能正常使用远程输入及远程遥控功能请开启系统的“ADB模式”，\n否则无法使用远程输入及远程遥控功能。系统开启ADB模式方法请网上自搜索。"/>
         <TextView
             android:layout_marginTop="5dp"
             android:layout_width="match_parent"
@@ -94,5 +96,26 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:text=""/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp">
+        <TextView
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="提示：如果有问题建议可加交流QQ群：7149348，如果喜欢本APP，可赞赏一下作者：）"/>
+        <ImageView
+            android:id="@+id/ivReward"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_width="610px"
+            android:layout_height="352px"
+            android:src="@drawable/reward"
+            />
     </LinearLayout>
 </RelativeLayout>

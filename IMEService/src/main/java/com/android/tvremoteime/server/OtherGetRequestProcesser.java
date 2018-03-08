@@ -1,6 +1,7 @@
 package com.android.tvremoteime.server;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.text.TextUtils;
@@ -51,8 +52,14 @@ public class OtherGetRequestProcesser implements RequestProcesser {
     private NanoHTTPD.Response getSDCardStatResponse(){
         File path = Environment.getExternalStorageDirectory();
         StatFs stat = new StatFs(path.getPath());
-        long totalBytes = stat.getTotalBytes();  //stat.getBlockCount() * stat.getBlockSize();
-        long availableBytes = stat.getAvailableBytes(); // stat.getBlockSize() * stat.getAvailableBlocks();
+        long totalBytes, availableBytes;
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2){
+            totalBytes = (long)stat.getBlockCount() * stat.getBlockSize();
+            availableBytes = (long)stat.getAvailableBlocks() * stat.getBlockSize();
+        }else{
+            totalBytes = stat.getTotalBytes();
+            availableBytes = stat.getAvailableBytes();
+        }
         return RemoteServer.createJSONResponse(NanoHTTPD.Response.Status.OK,
                 "{\"totalBytes\":" + totalBytes + ", \"availableBytes\":" + availableBytes + "}");
     }

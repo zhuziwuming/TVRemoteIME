@@ -39,6 +39,7 @@ public class FileUtils {
     }
 
     public static String getFileExt(String fileName){
+        if(TextUtils.isEmpty(fileName)) return "";
         int p = fileName.lastIndexOf('.');
         if(p != -1) {
             return fileName.substring(p).toLowerCase();
@@ -70,6 +71,7 @@ public class FileUtils {
     }
 
     public static String getFileNameWithoutExt(String filePath){
+        if(TextUtils.isEmpty(filePath)) return "";
         String fileName = filePath;
         int p = fileName.lastIndexOf(File.separatorChar);
         if(p != -1){
@@ -88,6 +90,7 @@ public class FileUtils {
     }
 
     public static String getFileName(String filePath){
+        if(TextUtils.isEmpty(filePath)) return "";
         String fileName = filePath;
         int p = fileName.lastIndexOf(File.separatorChar);
         if(p != -1){

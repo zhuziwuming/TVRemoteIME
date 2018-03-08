@@ -26,6 +26,10 @@ public class RemoteServerFileManager implements NanoHTTPD.TempFileManager {
     private static File filesDir = new File(baseDir, "files");
     private static File tmpDataDir = new File(baseDir, "temp");
     private static File playerCacheDir = new File(baseDir, "xlplayer");
+
+    static File getPlayTorrentFile(){
+        return new File(RemoteServerFileManager.baseDir, "play.torrent");
+    }
     public static void resetBaseDir(Context context){
         baseDir = context.getExternalFilesDir(null);
         filesDir = new File(baseDir, "files");
@@ -46,7 +50,7 @@ public class RemoteServerFileManager implements NanoHTTPD.TempFileManager {
             }
             try {
                 if (file.exists()) file.delete();
-            }catch (Exception ex){}
+            }catch (Exception ignored){}
         }
 
         public void delete() throws Exception {
@@ -107,7 +111,7 @@ public class RemoteServerFileManager implements NanoHTTPD.TempFileManager {
                         return playerCacheDir;
                     }
                 });
-            }catch (Exception ex){}
+            }catch (Exception ignored){}
             return new RemoteServerFileManager();
         }
     }
@@ -117,7 +121,9 @@ public class RemoteServerFileManager implements NanoHTTPD.TempFileManager {
             if(filesDir.exists()) deleteDirFiles(filesDir);
             if(tmpDataDir.exists()) deleteDirFiles(filesDir);
             if(playerCacheDir != null && playerCacheDir.exists()) deleteDirFiles(playerCacheDir);
-        }catch (Exception ex){
+            File torrentFile = getPlayTorrentFile();
+            if(torrentFile.exists()) torrentFile.delete();
+        }catch (Exception ignored){
 
         }
     }
@@ -127,7 +133,7 @@ public class RemoteServerFileManager implements NanoHTTPD.TempFileManager {
             try {
                 if(f.isDirectory())deleteDirFiles(f);
                 f.delete();
-            } catch (SecurityException e) {
+            } catch (SecurityException ignored) {
             }
         }
     }
@@ -138,14 +144,17 @@ public class RemoteServerFileManager implements NanoHTTPD.TempFileManager {
             }
             try {
                 file.delete();
-            } catch (SecurityException e) {
+            } catch (SecurityException ignored) {
             }
         }
     }
     public static void cutFile(File sourceFile, File targetPath){
         if(sourceFile.exists()) {
             File targetFile = new File(targetPath, sourceFile.getName());
-            sourceFile.renameTo(targetFile);
+            try{
+                sourceFile.renameTo(targetFile);
+            } catch (SecurityException ignored) {
+            }
             /**
             if (sourceFile.isDirectory()) {
                 File newDir = new File(targetPath, sourceFile.getName());
@@ -191,7 +200,7 @@ public class RemoteServerFileManager implements NanoHTTPD.TempFileManager {
             }
             ins.close();
             out.close();
-        }catch (Exception e) {
+        }catch (Exception ignored) {
         }
     }
 }

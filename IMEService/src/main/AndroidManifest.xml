@@ -3,6 +3,7 @@
     package="com.android.tvremoteime">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -46,7 +47,6 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="video/*" />
-                <data android:mimeType="audio/*" />
                 <data android:scheme="http" />
                 <data android:scheme="ftp" />
                 <data android:scheme="file" />
@@ -57,6 +57,11 @@
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="video/*" />
+                <data android:scheme="http" />
+                <data android:scheme="ftp" />
+                <data android:scheme="file" />
+                <data android:scheme="ed2k" />
+                <data android:scheme="thunder" />
             </intent-filter>
         </activity>
         <receiver android:name=".IMEServiceBroadCastReceiver">

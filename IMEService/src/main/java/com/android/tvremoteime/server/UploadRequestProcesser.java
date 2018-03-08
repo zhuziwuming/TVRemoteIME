@@ -31,18 +31,18 @@ public class UploadRequestProcesser implements RequestProcesser {
     @Override
     public NanoHTTPD.Response doResponse(NanoHTTPD.IHTTPSession session, String fileName, Map<String, String> params, Map<String, String> files) {
         String uploadFileName  = params.get("file");
-        Boolean autoPlay = "true".equalsIgnoreCase(params.get("autoPlay"));
+        Boolean autoInstall = "true".equalsIgnoreCase(params.get("autoInstall"));
         String localFilename = files.get("file");
         if(!TextUtils.isEmpty(uploadFileName)) {
             if (!TextUtils.isEmpty(localFilename)) {
-                if(autoPlay) {
+                if(autoInstall) {
                     if (localFilename.endsWith(".apk")) {
                         //执行安装
                         AppPackagesHelper.installPackage(new File(localFilename), this.context);
-                    } else if (FileUtils.isMediaFile(localFilename) || ".torrent".equals(FileUtils.getFileExt(localFilename))){
+                    }
+                    else if (FileUtils.isMediaFile(localFilename)){
                         //执行播放
-                        VideoPlayHelper.playUrl(this.context, localFilename, "true".equalsIgnoreCase(params.get("useSystem")));
-                        //XLVideoPlayActivity.intentTo(this.mContext, localFilename, localFilename);
+                        VideoPlayHelper.playUrl(this.context, localFilename, 0, "true".equalsIgnoreCase(params.get("useSystem")));
                     }
                 }
             }
