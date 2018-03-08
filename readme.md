@@ -97,7 +97,9 @@
 
 4、[AFAP Player](https://github.com/AFAP/Player "AFAP Player") 用于实现视频播放，采用[ijkplayer](https://github.com/Bilibili/ijkplayer "ijkplayer")播放器核心
 
-5、[MiniThunder](https://github.com/oceanzhang01/MiniThunder "MiniThunder") 用于实现视频文件下载功能
+5、[MiniThunder](https://github.com/oceanzhang01/MiniThunder "MiniThunder") 用于实现视频文件下载功能  
+
+6、[AdbLib](https://github.com/cgutman/AdbLib "AdbLib") 用于连接adb服务，在非输入法状态下的实现遥控功能  
 
 # 交流QQ群  
 QQ群号：7149348， 加入QQ群可以分享直播源、反馈问题及建议。  
