@@ -32,10 +32,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        Intent intent = new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS);
         switch (v.getId()){
             case R.id.btnUseIME:
-                this.startActivityForResult(intent, 0);
+                openInputMethodSettings();
                 if(Environment.isEnableIME(this)){
                     Environment.toast(getApplicationContext(), "太棒了，您已经激活启用了" + getString(R.string.app_name) +"输入法！");
                 }
@@ -43,11 +42,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.btnSetIME:
                 if(!Environment.isEnableIME(this)) {
                     Environment.toast(getApplicationContext(), "抱歉，请您先激活启用" + getString(R.string.app_name) +"输入法！");
-                    try {
-                        this.startActivityForResult(intent, 0);
-                    }catch (Exception ignored){
-                        Environment.toast(getApplicationContext(), "抱歉，无法激活启用输入法，请手动启动服务！");
-                    }
+                    openInputMethodSettings();
                     if(!Environment.isEnableIME(this)) return;
                 }
                 try {
@@ -68,6 +63,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
         }
         refreshQRCode();
+    }
+    private void openInputMethodSettings(){
+        try {
+            this.startActivityForResult(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS), 0);
+        }catch (Exception ignored){
+            Environment.toast(getApplicationContext(), "抱歉，无法激活启用输入法，请手动启动服务！");
+        }
     }
     private void refreshQRCode(){
         String address = RemoteServer.getServerAddress(this);
