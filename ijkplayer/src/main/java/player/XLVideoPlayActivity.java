@@ -42,6 +42,7 @@ import com.afap.ijkplayer.R;
 import com.xunlei.downloadlib.parameter.XLConstant;
 import com.xunlei.downloadlib.parameter.XLTaskInfo;
 
+import player.settings.GlobalSettings;
 import player.widget.media.IjkVideoView;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
@@ -541,7 +542,7 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
                     oldProgressValue = 0;
                     newProgressValue = oldProgressValue;
                 }
-                newProgressValue += keyCode == KeyEvent.KEYCODE_DPAD_LEFT ? -2000 : 2000;
+                newProgressValue += keyCode == KeyEvent.KEYCODE_DPAD_LEFT ? -GlobalSettings.FastForwardInterval : GlobalSettings.FastForwardInterval;
                 int max = mVideoView.getDuration();
                 //Log.d(TAG, "newProgressValue = " + newProgressValue);
                 if(newProgressValue < (0 - max))newProgressValue = (0 - max);
@@ -842,9 +843,14 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
                         mVideoView.stopPlayback();
                     }
                     $.id(R.id.app_video_loading).visible();
-                    mVideoView.setVideoPath(xlDownloadManager.taskInstance().getPlayUrl());
+                    String uri = xlDownloadManager.taskInstance().getPlayUrl();
+                    if(TextUtils.isEmpty(uri)) {
+                        Toast.makeText(XLVideoPlayActivity.this, "没有播放资源地址，退出播放任务。", Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                    mVideoView.setVideoPath(uri);
                     mVideoView.seekTo(0);
-                    Log.d(TAG, "playing url = " + xlDownloadManager.taskInstance().getPlayUrl());
+                    Log.d(TAG, "playing url = " + uri);
                     break;
                 case MESSAGE_LIVE_RESTART:
                     Log.d(TAG, "MSG:MESSAGE_LIVE_RESTART -> handle:" + status);
