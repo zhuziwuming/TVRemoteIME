@@ -5,6 +5,7 @@ package com.android.tvremoteime.server;
  */
 import android.content.Context;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.tvremoteime.IMEService;
@@ -14,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,8 +93,8 @@ public class RemoteServerFileManager implements NanoHTTPD.TempFileManager {
 
     @Override
     public NanoHTTPD.TempFile createTempFile(String fileName) throws Exception {
-        if(fileName != null && !fileName.isEmpty()) {
-            fileName = fileName.replaceAll("[\\\\|/]", "").replaceAll("\\.\\.", "");
+        if(!TextUtils.isEmpty(fileName)) {
+            fileName = URLDecoder.decode(fileName, "utf-8").replaceAll("[\\\\|/]", "").replaceAll("\\.\\.", "");
         }
         NanoHTTPD.TempFile tmpFile = new SDCardTempFile(fileName);
         tempFiles.add(tmpFile);
