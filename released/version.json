@@ -1,0 +1,6 @@
+{
+    "versionCode": 10,
+    "versionName": "1.4.0",
+    "installAPK": "https://gitee.com/kingthy/TVRemoteIME/raw/master/released/IMEService-release.apk",
+    "message": "1.支持视频投屏功能。\r\n2.添加自动更新功能。\r\n3.修复已知BUG。"
+}
