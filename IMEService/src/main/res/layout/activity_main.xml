@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:text="第一步：激活启用输入法"/>
+            android:text="@string/step1"/>
         <Button
             android:id="@+id/btnUseIME"
             android:layout_marginTop="5dp"
@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:text="第二步：设置为系统默认输入法"/>
+            android:text="@string/step2"/>
         <Button
             android:id="@+id/btnSetIME"
             android:layout_marginTop="5dp"
@@ -69,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:text="第三步：手机/电脑扫描或者直接访问以下地址"/>
+            android:text="第三步：手机/电脑扫描下面二维码或者直接浏览器访问以下地址"/>
         <TextView
             android:id="@+id/tvAddress"
             android:layout_marginLeft="13dp"
@@ -89,7 +89,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:text="第四步：在下面输入框试试远程输入效果"/>
+            android:text="第四步：可在下面输入框试试远程输入效果"/>
         <EditText
             android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"

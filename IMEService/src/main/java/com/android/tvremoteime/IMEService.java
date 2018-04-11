@@ -1,9 +1,12 @@
 package com.android.tvremoteime;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.inputmethodservice.InputMethodService;
 import android.os.Handler;
-import android.os.Message;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyCharacterMap;
@@ -17,11 +20,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.tvremoteime.server.RemoteServer;
 import com.android.tvremoteime.server.RemoteServerFileManager;
 import com.android.tvremoteime.adb.AdbHelper;
+import com.zxt.dlna.dmr.ZxtMediaRenderer;
+
+import org.fourthline.cling.android.AndroidUpnpService;
+import org.fourthline.cling.android.AndroidUpnpServiceImpl;
 
 import java.io.IOException;
 
@@ -52,18 +58,24 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 	public static final int KEY_ACTION_DOWN = 1;
 	public static final int KEY_ACTION_UP = 2;
 
+	private ZxtMediaRenderer mMediaRenderer = null;
+	private ServiceConnection mServiceConnection = null;
+
 	final Handler handler = new Handler();
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 
+		//android.os.Debug.waitForDebugger();
 		Environment.initToastHandler();
 
 		RemoteServerFileManager.resetBaseDir(this);
 		startRemoteServer();
+		startDLNAService();
+		new AutoUpdateManager(this, this.handler);
+		//xllib.DownloadManager.instance().init(this);
 
-		//android.os.Debug.waitForDebugger();
 	}
 
 	@Override
@@ -160,6 +172,28 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 		return false;
 	}
 
+	private void startDLNAService(){
+		final Context context = this.getApplicationContext();
+		mServiceConnection = new ServiceConnection() {
+			@Override
+			public void onServiceConnected(ComponentName name, IBinder service) {
+				AndroidUpnpService upnpService = (AndroidUpnpService) service;
+				Log.i(TAG, "DLNA: onServiceConnected");
+				mMediaRenderer = new ZxtMediaRenderer(1, getString(R.string.app_name) , context);
+				upnpService.getRegistry().addDevice(mMediaRenderer.getDevice());
+				Environment.toastInHandler(context, getString(R.string.app_name)  + " DLNA服务已启动");
+			}
+
+			@Override
+			public void onServiceDisconnected(ComponentName name) {
+				Log.i(TAG, "DLNA: onServiceDisconnected");
+			}
+		};
+		getApplicationContext().bindService(
+				new Intent(this, AndroidUpnpServiceImpl.class),
+				mServiceConnection, Context.BIND_AUTO_CREATE);
+	}
+
 	private void startRemoteServer(){
 		do {
 			mServer = new RemoteServer(RemoteServer.serverPort, this);
@@ -226,7 +260,7 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 			});
 			try {
 				mServer.start();
-				Environment.toastInHandler(this, TAG  + "远程服务已启动");
+				Environment.toastInHandler(this, getString(R.string.app_name)  + "远程服务已启动");
 				Log.i(TAG, "远程服务创建成功！port=" + RemoteServer.serverPort);
 				break;
 			}catch (IOException ex){
@@ -273,8 +307,11 @@ public class IMEService extends InputMethodService implements View.OnClickListen
             Log.i(TAG, "远程输入服务已停止！");
 			mServer.stop();
 		}
+		if(this.mMediaRenderer != null){
+			this.mMediaRenderer.stopAllMediaPlayers();
+		}
 		AdbHelper.stopService();
-		Environment.toastInHandler(this, TAG  + "服务已停止");
+		Environment.toastInHandler(this, getString(R.string.app_name)  + "服务已停止");
     	super.onDestroy();    	
     }
 

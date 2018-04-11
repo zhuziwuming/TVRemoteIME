@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.android.tvremoteime.Environment;
+import com.android.tvremoteime.R;
 import com.android.tvremoteime.server.RemoteServer;
 import com.cgutman.adblib.AdbBase64;
 import com.cgutman.adblib.AdbConnection;
@@ -148,7 +149,7 @@ public class AdbHelper {
                     @Override
                     public void onClosed() {
                         Log.i(TAG, "adb已断开连接。");
-                        Environment.toastInHandler(adbHelper.context, "TVRemoteIME和adb服务已断开连接。");
+                        Environment.toastInHandler(adbHelper.context, context.getString(R.string.app_name)  + "和adb服务已断开连接。");
                         try {
                             connection.close();
                             connection = null;
@@ -161,7 +162,7 @@ public class AdbHelper {
 
             connection.connect();
             Log.i(TAG, "adb已连接成功。");
-            Environment.toastInHandler(adbHelper.context, "TVRemoteIME和adb服务已连接成功。");
+            Environment.toastInHandler(adbHelper.context, context.getString(R.string.app_name)  + "和adb服务已连接成功。");
             return true;
         }catch(Exception e) {
             Log.e(TAG, "adb连接失败，错误信息。" + e.toString(), e);

@@ -36,7 +36,7 @@ public class VideoPlayHelper {
             }
         }else {
             //内部播放
-            XLVideoPlayActivity.intentTo(context, url, url, videoIndex);
+            XLVideoPlayActivity.intentTo(XLVideoPlayActivity.class, context, url, url, videoIndex);
         }
     }
 }

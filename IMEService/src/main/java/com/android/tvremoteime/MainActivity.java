@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.android.tvremoteime.server.RemoteServer;
 import com.android.tvremoteime.adb.AdbHelper;
+import com.zxt.dlna.dmr.ZxtMediaRenderer;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
@@ -36,12 +37,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.btnUseIME:
                 openInputMethodSettings();
                 if(Environment.isEnableIME(this)){
-                    Environment.toast(getApplicationContext(), "太棒了，您已经激活启用了" + getString(R.string.app_name) +"输入法！");
+                    Environment.toast(getApplicationContext(), "太棒了，您已经激活启用了" + getString(R.string.keyboard_name) +"输入法！");
                 }
                 break;
             case R.id.btnSetIME:
                 if(!Environment.isEnableIME(this)) {
-                    Environment.toast(getApplicationContext(), "抱歉，请您先激活启用" + getString(R.string.app_name) +"输入法！");
+                    Environment.toast(getApplicationContext(), "抱歉，请您先激活启用" + getString(R.string.keyboard_name) +"输入法！");
                     openInputMethodSettings();
                     if(!Environment.isEnableIME(this)) return;
                 }
@@ -51,7 +52,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     Environment.toast(getApplicationContext(), "抱歉，无法设置为系统默认输入法，请手动启动服务！");
                 }
                 if(Environment.isDefaultIME(this)){
-                    Environment.toast(getApplicationContext(), "太棒了，" + getString(R.string.app_name) +"已是系统默认输入法！");
+                    Environment.toast(getApplicationContext(), "太棒了，" + getString(R.string.keyboard_name) +"已是系统默认输入法！");
                 }
                 break;
             case R.id.btnStartService:

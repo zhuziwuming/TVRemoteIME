@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId 'com.android.tvremoteime'
         minSdkVersion 14
         targetSdkVersion 15
-        versionCode 8
-        versionName "1.3.1"
+        versionCode 10
+        versionName "1.4.0"
     }
     buildTypes {
         debug{
@@ -26,6 +26,6 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(path: ':ijkplayer')
-
     compile project(path: ':AdbLib')
+    compile project(path: ':DroidDLNA')
 }

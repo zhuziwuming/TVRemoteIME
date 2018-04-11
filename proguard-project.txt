@@ -110,3 +110,7 @@
 #tv.danmaku.ijk.
 -dontwarn tv.danmaku.ijk.**
 -keep class  tv.danmaku.ijk.** { *;}
+
+
+-keep class org.fourthline.cling.** { *;}
+-keep class com.zxt.dlna.** { *;}
