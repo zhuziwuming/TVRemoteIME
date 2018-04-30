@@ -114,3 +114,6 @@
 
 -keep class org.fourthline.cling.** { *;}
 -keep class com.zxt.dlna.** { *;}
+
+-keep class com.tencent.stat.** { *;}
+-keep class com.tencent.mid.** { *;}

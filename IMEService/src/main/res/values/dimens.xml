@@ -8,4 +8,6 @@
     <dimen name="candidate_font_height">28sp</dimen>
     <dimen name="candidates_view_height">42sp</dimen>
     <dimen name="qrWH">300dp</dimen>
+    <dimen name="kb_key_height">38dp</dimen>
+    <dimen name="kb_key_margin_top">6dp</dimen>
 </resources>

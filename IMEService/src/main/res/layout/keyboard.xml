@@ -3,13 +3,13 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="#444"
-    android:padding="20dp"
+    android:padding="10dp"
     android:focusable="true">
 
     <LinearLayout
         android:id="@+id/topLine"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/kb_key_height"
         android:layout_centerHorizontal="true"
         android:focusable="true">
 
@@ -57,10 +57,10 @@
     <LinearLayout
         android:id="@+id/qweLine"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/kb_key_height"
         android:layout_below="@+id/topLine"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/kb_key_margin_top"
         android:focusable="true">
 
         <Button
@@ -107,10 +107,10 @@
     <LinearLayout
         android:id="@+id/asdLine"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/kb_key_height"
         android:layout_below="@+id/qweLine"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/kb_key_margin_top"
         android:focusable="true">
 
         <Button
@@ -159,10 +159,10 @@
     <LinearLayout
         android:id="@+id/zxcLine"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/kb_key_height"
         android:layout_below="@+id/asdLine"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/kb_key_margin_top"
         android:focusable="true">
 
         <ImageButton
@@ -210,10 +210,10 @@
     <LinearLayout
         android:id="@+id/bottomLine"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/kb_key_height"
         android:layout_below="@+id/zxcLine"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/kb_key_margin_top"
         android:focusable="true">
 
         <Button
@@ -251,6 +251,10 @@
             android:src="@drawable/net_icon"
             android:layout_width="wrap_content"
             style="@style/btn_input_style" />
+        <Button
+            android:id="@+id/btnClose"
+            style="@style/btn_input_style"
+            android:text="▲" />
     </LinearLayout>
     <RelativeLayout
         android:id="@+id/helpDialog"

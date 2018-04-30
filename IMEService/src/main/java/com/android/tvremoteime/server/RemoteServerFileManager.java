@@ -32,6 +32,9 @@ public class RemoteServerFileManager implements NanoHTTPD.TempFileManager {
     static File getPlayTorrentFile(){
         return new File(RemoteServerFileManager.baseDir, "play.torrent");
     }
+    public static File getScreenShotFile(){
+        return new File(RemoteServerFileManager.baseDir, "screenshot.png");
+    }
     public static void resetBaseDir(Context context){
         baseDir = context.getExternalFilesDir(null);
         filesDir = new File(baseDir, "files");

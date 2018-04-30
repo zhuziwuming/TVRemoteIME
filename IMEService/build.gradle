@@ -8,8 +8,8 @@ android {
         applicationId 'com.android.tvremoteime'
         minSdkVersion 14
         targetSdkVersion 15
-        versionCode 10
-        versionName "1.4.0"
+        versionCode 11
+        versionName "1.4.1"
     }
     buildTypes {
         debug{
@@ -28,4 +28,5 @@ dependencies {
     compile project(path: ':ijkplayer')
     compile project(path: ':AdbLib')
     compile project(path: ':DroidDLNA')
+
 }

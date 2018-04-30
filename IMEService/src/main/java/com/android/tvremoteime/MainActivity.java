@@ -3,10 +3,13 @@ package com.android.tvremoteime;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +21,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private ImageView qrCodeImage;
     private TextView addressView;
+    private EditText dlnaNameText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,8 +29,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         qrCodeImage = this.findViewById(R.id.ivQRCode);
         addressView = this.findViewById(R.id.tvAddress);
+        dlnaNameText = this.findViewById(R.id.etDLNAName);
 
         this.setTitle(this.getResources().getString( R.string.app_name) + "  V" + AppPackagesHelper.getCurrentPackageVersion(this));
+        dlnaNameText.setText(DLNAUtils.getDLNANameSuffix(this.getApplicationContext()));
 
         refreshQRCode();
     }
@@ -62,6 +68,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
                 Environment.toast(getApplicationContext(), "服务已手动启动，稍后可尝试访问控制端页面");
                 break;
+            case R.id.btnSetDLNA:
+                DLNAUtils.setDLNANameSuffix(this.getApplicationContext(), dlnaNameText.getText().toString());
+                break;
         }
         refreshQRCode();
     }
@@ -77,4 +86,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         addressView.setText(address);
         qrCodeImage.setImageBitmap(QRCodeGen.generateBitmap(address, 150, 150));
     }
+
+
+
+
 }

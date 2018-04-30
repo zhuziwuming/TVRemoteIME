@@ -24,10 +24,6 @@ import android.widget.TextView;
 import com.android.tvremoteime.server.RemoteServer;
 import com.android.tvremoteime.server.RemoteServerFileManager;
 import com.android.tvremoteime.adb.AdbHelper;
-import com.zxt.dlna.dmr.ZxtMediaRenderer;
-
-import org.fourthline.cling.android.AndroidUpnpService;
-import org.fourthline.cling.android.AndroidUpnpServiceImpl;
 
 import java.io.IOException;
 
@@ -40,6 +36,7 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 	private ImageButton btnCaps = null;
 	private View focusedView = null;
 	private RelativeLayout mInputView = null;
+	private boolean hideWindowByKey = false;
 
 	private View helpDialog = null;
 	private ImageView qrCodeImage = null;
@@ -58,9 +55,6 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 	public static final int KEY_ACTION_DOWN = 1;
 	public static final int KEY_ACTION_UP = 2;
 
-	private ZxtMediaRenderer mMediaRenderer = null;
-	private ServiceConnection mServiceConnection = null;
-
 	final Handler handler = new Handler();
 
 	@Override
@@ -72,7 +66,7 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 
 		RemoteServerFileManager.resetBaseDir(this);
 		startRemoteServer();
-		startDLNAService();
+		DLNAUtils.startDLNAService(this.getApplicationContext());
 		new AutoUpdateManager(this, this.handler);
 		//xllib.DownloadManager.instance().init(this);
 
@@ -152,6 +146,10 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 			Environment.debug(TAG, "onEvaluateInputViewShown.");
 		}
 		super.onEvaluateInputViewShown();
+		if(hideWindowByKey){
+			hideWindowByKey = false;
+			return hideWindowByKey;
+		}
 		EditorInfo editorInfo = getCurrentInputEditorInfo();
 		return !(editorInfo == null || editorInfo.inputType == EditorInfo.TYPE_NULL);
 	}
@@ -170,28 +168,6 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 			return true;
 		}
 		return false;
-	}
-
-	private void startDLNAService(){
-		final Context context = this.getApplicationContext();
-		mServiceConnection = new ServiceConnection() {
-			@Override
-			public void onServiceConnected(ComponentName name, IBinder service) {
-				AndroidUpnpService upnpService = (AndroidUpnpService) service;
-				Log.i(TAG, "DLNA: onServiceConnected");
-				mMediaRenderer = new ZxtMediaRenderer(1, getString(R.string.app_name) , context);
-				upnpService.getRegistry().addDevice(mMediaRenderer.getDevice());
-				Environment.toastInHandler(context, getString(R.string.app_name)  + " DLNA服务已启动");
-			}
-
-			@Override
-			public void onServiceDisconnected(ComponentName name) {
-				Log.i(TAG, "DLNA: onServiceDisconnected");
-			}
-		};
-		getApplicationContext().bindService(
-				new Intent(this, AndroidUpnpServiceImpl.class),
-				mServiceConnection, Context.BIND_AUTO_CREATE);
 	}
 
 	private void startRemoteServer(){
@@ -307,9 +283,7 @@ public class IMEService extends InputMethodService implements View.OnClickListen
             Log.i(TAG, "远程输入服务已停止！");
 			mServer.stop();
 		}
-		if(this.mMediaRenderer != null){
-			this.mMediaRenderer.stopAllMediaPlayers();
-		}
+		DLNAUtils.stopDLNAService();
 		AdbHelper.stopService();
 		Environment.toastInHandler(this, getString(R.string.app_name)  + "服务已停止");
     	super.onDestroy();    	
@@ -363,9 +337,7 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 						if(helpDialog != null && helpDialog.isShown()){
 							helpDialog.setVisibility(View.GONE);
 						}else {
-							this.hideWindow();
-							this.onFinishInputView(true);
-							this.onFinishCandidatesView(true);
+							this.finishInput();
 						}
 						return true;
 					}
@@ -421,29 +393,45 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 		focusedView.requestFocus();
 		focusedView.requestFocusFromTouch();
 	}
-
-	private void clickButtonByKey(View v){
-		if(focusedView.getId() == R.id.btnCaps){
-			focusedView.setBackgroundResource(capsOn ? R.drawable.key_pressed_on : R.drawable.key_pressed_off);
-		}else{
-			focusedView.setBackgroundResource(R.drawable.key_pressed);
+	private void finishInput(){
+		this.onFinishInput();
+		this.hideWindow();
+		//this.onFinishInputView(true);
+		//this.onFinishCandidatesView(true);
+	}
+	private void clickButtonByKey(final View v){
+		switch (v.getId()) {
+			case R.id.btnCaps:
+				v.setBackgroundResource(capsOn ? R.drawable.key_pressed_on : R.drawable.key_pressed_off);
+				break;
+			case R.id.btnClose:
+				this.hideWindowByKey = true;
+				this.finishInput();
+				return;
+			default:
+				v.setBackgroundResource(R.drawable.key_pressed);
+				break;
 		}
 		clickButton(v, false);
 		handler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				if(focusedView == btnCaps){
-					focusedView.setBackgroundResource(capsOn ? R.drawable.key_on : R.drawable.key_off);
+				if(v == btnCaps){
+					v.setBackgroundResource(capsOn ? R.drawable.key_on : R.drawable.key_off);
 				}else{
-					focusedView.setBackgroundResource(R.drawable.key);
+					v.setBackgroundResource(R.drawable.key);
 				}
-				focusedView.requestFocus();
+				v.requestFocus();
 			}
 		}, 200);
 	}
 	private void clickButton(View v, boolean resetCapsButtonState){
 		if(v instanceof Button){
-			commitText(((Button) v).getText().toString());
+			if(v.getId() == R.id.btnClose){
+				this.finishInput();
+			}else {
+				commitText(((Button) v).getText().toString());
+			}
 		}else if(v instanceof ImageButton){
 			switch (v.getId()){
 				case R.id.btnEnter:
@@ -467,8 +455,10 @@ public class IMEService extends InputMethodService implements View.OnClickListen
 	@Override
 	public void onClick(View v) {
 		clickButton(v, true);
-		v.requestFocusFromTouch();
-		focusedView = v;
+		if(v.getId() != R.id.btnClose) {
+			v.requestFocusFromTouch();
+			focusedView = v;
+		}
 	}
 
 	private void toggleCapsState(boolean resetCapsButtonState){

@@ -449,6 +449,11 @@ public class XLVideoPlayActivity extends Activity implements IMediaPlayer.OnPrep
         mVideoView.resume();
     }
     protected void setVideoPath(String path){
+        if(TextUtils.isEmpty(path)){
+            Toast.makeText(this, "没有视频播放资源，退出播放任务.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
         mVideoView.setVideoPath(path);
     }
     protected void pause(){
