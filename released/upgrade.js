@@ -1,7 +1,7 @@
 var releasedVersion = '2.0.0';
-var releasedVersionAPK = 'https://gitee.com/kingthy/TVRemoteIME/raw/master/released/IMEService-release.apk';
+var releasedVersionAPK = 'https://cdn.jsdelivr.net/gh/zhuziwuming/TVRemoteIME@master/released/IMEService-release2.0.apk';
 var feedbackUrl = 'http://www.cnblogs.com/kingthy/p/tvremoteime.html';
-var rewardUrl = 'http://htmlpreview.github.io/?https://raw.githubusercontent.com/kingthy/TVRemoteIME/master/released/reward.html';
+var rewardUrl = 'https://cdn.jsdelivr.net/gh/zhuziwuming/TVRemoteIME@master/released/reward.html';
 $(function(){
 	if(feedbackUrl.length && $('#feedbackLink').length == 0){
 		$('.version').append('<a href="' + feedbackUrl + '" target="_blank" style="margin-left:10px;" id="feedbackLink">[问题反馈]</a>');
